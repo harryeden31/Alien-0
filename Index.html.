@@ -1,0 +1,617 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d16">
+<title>ALIEN-0 | Autonomous Discovery</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#080d16; --panel:#111b2a; --panel2:#0c1420;
+  --line:#26394d; --text:#edf5ff; --muted:#9badc1;
+  --mint:#7df3ce; --blue:#83bfff; --amber:#ffd38a;
+  --red:#ff9eaa;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:radial-gradient(ellipse at 50% -20%,#203d59,transparent 60%),var(--bg);
+  color:var(--text); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+header,main { width:min(1100px,100%); margin:auto; padding:20px 15px; }
+header { padding-top:32px; }
+.eyebrow { color:var(--mint); font-size:11px; font-weight:800; letter-spacing:.2em; }
+h1 { font-size:clamp(30px,8vw,48px); letter-spacing:.13em; margin:5px 0; }
+h2 { font-size:16px; margin:0 0 12px; }
+h3 { font-size:14px; margin:0 0 5px; }
+p { margin:7px 0; }
+.muted { color:var(--muted); }
+.small { font-size:12px; }
+.intro { max-width:720px; color:var(--muted); }
+.status { display:inline-block; border:1px solid #356657; color:var(--mint); border-radius:30px; padding:4px 10px; font-size:11px; margin-top:8px; }
+.warning,.safe { padding:13px; border-radius:12px; font-size:13px; margin-bottom:14px; }
+.warning { border:1px solid #67502b; background:#211b12; color:#f7dfb2; }
+.safe { border:1px solid #285849; background:#0d211c; color:#bdf5e2; }
+.grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:13px; }
+.card { grid-column:span 6; min-width:0; padding:16px; border:1px solid var(--line); border-radius:16px; background:linear-gradient(160deg,#142133,var(--panel2)); }
+.wide { grid-column:span 12; }
+.stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:12px 0; }
+.stat { min-width:0; padding:11px; background:#09111c; border:1px solid #263648; border-radius:11px; }
+.num { font-size:clamp(18px,4vw,25px); font-weight:850; overflow-wrap:anywhere; }
+.label { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.07em; }
+.row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.pill { font-size:10px; border:1px solid var(--line); color:var(--muted); border-radius:20px; padding:3px 8px; white-space:nowrap; }
+.progress { height:5px; border-radius:10px; background:#253447; overflow:hidden; margin:8px 0; }
+.progress span { display:block; height:100%; background:linear-gradient(90deg,var(--blue),var(--mint)); }
+.actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+button { cursor:pointer; border:1px solid var(--line); background:#1c2b3e; color:var(--text); border-radius:9px; padding:10px 12px; font-weight:700; font-size:13px; }
+button.primary { background:var(--mint); border-color:var(--mint); color:#07150f; }
+button.danger { color:var(--red); }
+button:disabled { opacity:.45; cursor:default; }
+.list { display:grid; gap:9px; }
+.item { background:#09111c; border:1px solid #26374a; border-radius:11px; padding:11px; overflow-wrap:anywhere; }
+.item p { color:var(--muted); font-size:12px; }
+.empty { padding:16px; border:1px dashed var(--line); border-radius:10px; text-align:center; color:var(--muted); font-size:13px; }
+label { display:block; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; margin:10px 0 5px; }
+input,select,textarea { width:100%; background:#080f19; border:1px solid var(--line); color:var(--text); padding:11px; border-radius:9px; font:inherit; }
+textarea { min-height:85px; resize:vertical; }
+.formgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.full { grid-column:1/-1; }
+hr { border:0; border-top:1px solid var(--line); margin:15px 0; }
+footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:16px; margin-top:22px; }
+#toast { display:none; position:fixed; bottom:15px; left:5%; width:90%; max-width:450px; padding:12px; border-radius:10px; background:#d8fff1; color:#06160f; font-weight:800; text-align:center; z-index:5; box-shadow:0 8px 35px #0008; }
+@media(max-width:680px) {
+  .card { grid-column:span 12; }
+  .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .formgrid { grid-template-columns:1fr; }
+  .full { grid-column:auto; }
+  header { padding-top:22px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">ARTIFICIAL LIFE · ECONOMIC DISCOVERY</div>
+  <h1>ALIEN-0</h1>
+  <p class="intro">An experimental discovery engine that explores strategies, learns from outcomes, develops business hypotheses and keeps a persistent record of evidence.</p>
+  <span class="status" id="status">SYSTEM READY</span>
+</header>
+
+<main>
+  <div class="warning"><strong>Reality check:</strong> ALIEN-0 is an algorithmic prototype, not a conscious being or a trained general-purpose AI. Simulated scores are not market research or money. It cannot independently contact customers, publish products or collect payments. Real income requires a useful offer and paying customers.</div>
+
+  <div class="grid">
+    <section class="card wide">
+      <h2>01 / Mission control</h2>
+      <div class="stats">
+        <div class="stat"><div class="num" id="cycles">0</div><div class="label">Thinking cycles</div></div>
+        <div class="stat"><div class="num" id="lessons">0</div><div class="label">Lessons stored</div></div>
+        <div class="stat"><div class="num" id="trials">0</div><div class="label">Experiments</div></div>
+        <div class="stat"><div class="num" id="sales">£0.00</div><div class="label">Recorded sales</div></div>
+      </div>
+      <div class="row small muted"><span>Exploration coverage</span><strong id="coverage">0%</strong></div>
+      <div class="progress"><span id="coverageBar" style="width:0%"></span></div>
+      <div class="actions">
+        <button class="primary" id="runOne">Run one cycle</button>
+        <button id="runTen">Run 10 cycles</button>
+        <button id="autoStart">Start auto mode</button>
+        <button id="autoStop" disabled>Stop</button>
+      </div>
+      <p class="muted small">Each cycle chooses an experiment, simulates an outcome, adjusts estimates and saves a lesson. Auto mode runs only while this page stays open.</p>
+    </section>
+
+    <section class="card">
+      <h2>02 / Agent network</h2>
+      <p class="muted small">Agents use different exploration preferences. They share lessons and update their own estimates.</p>
+      <div class="list" id="agents"></div>
+    </section>
+
+    <section class="card">
+      <h2>03 / Strategy map</h2>
+      <p class="muted small">These percentages describe the internal simulation only. They do not predict actual sales.</p>
+      <div class="list" id="strategies"></div>
+      <hr>
+      <h3 id="bestStrategy">Waiting for first cycle</h3>
+      <p class="muted small" id="strategyReason">Run an experiment to begin.</p>
+    </section>
+
+    <section class="card">
+      <div class="row"><h2>04 / Memory log</h2><button id="exportTop">Export</button></div>
+      <div class="list" id="memory"><div class="empty">No memories yet. Run a cycle.</div></div>
+    </section>
+
+    <section class="card">
+      <h2>05 / Opportunity hypotheses</h2>
+      <p class="muted small">Starting points to investigate, not validated business opportunities.</p>
+      <div class="list" id="ideas"><div class="empty">Generate your first hypothesis.</div></div>
+      <div class="actions">
+        <button id="newIdea">Generate hypothesis</button>
+        <button id="makeProposal">Draft next step</button>
+      </div>
+    </section>
+
+    <section class="card wide">
+      <h2>06 / Real-world evidence</h2>
+      <div class="safe">You enter real-world results yourself. ALIEN-0 does not independently verify them. It keeps actual evidence separate from simulated experiments.</div>
+      <form id="evidenceForm">
+        <div class="formgrid">
+          <div>
+            <label for="evidenceType">Evidence type</label>
+            <select id="evidenceType">
+              <option value="problem">Problem observed</option>
+              <option value="interest">Potential customer interest</option>
+              <option value="test">Product test result</option>
+              <option value="sale">Actual sale</option>
+              <option value="cost">Actual cost or fee</option>
+            </select>
+          </div>
+          <div>
+            <label for="amount">Amount in pounds (£)</label>
+            <input id="amount" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div class="full">
+            <label for="evidenceNote">What happened?</label>
+            <textarea id="evidenceNote" maxlength="1500" required placeholder="Describe what happened, how you know, and what you learned. Do not include passwords or sensitive personal information."></textarea>
+          </div>
+          <div class="full"><button class="primary" type="submit">Save evidence</button></div>
+        </div>
+      </form>
+      <p class="muted small">Recorded net = entered sales minus entered costs. This is not a full accounting or tax calculation.</p>
+      <div class="stats">
+        <div class="stat"><div class="num" id="grossSales">£0.00</div><div class="label">Gross sales</div></div>
+        <div class="stat"><div class="num" id="totalCosts">£0.00</div><div class="label">Recorded costs</div></div>
+        <div class="stat"><div class="num" id="netResult">£0.00</div><div class="label">Recorded net</div></div>
+        <div class="stat"><div class="num" id="evidenceTotal">0</div><div class="label">Evidence records</div></div>
+      </div>
+      <div class="list" id="evidenceList"></div>
+    </section>
+
+    <section class="card">
+      <h2>07 / Human approval queue</h2>
+      <p class="muted small">Reviewing a proposal does not execute it, spend money, contact anyone or publish anything.</p>
+      <div class="list" id="proposals"><div class="empty">No proposals yet.</div></div>
+    </section>
+
+    <section class="card">
+      <h2>08 / System controls</h2>
+      <p class="muted small">Data is saved in this browser when local storage is available. It does not automatically sync to another device.</p>
+      <div class="actions">
+        <button id="backup">Download JSON backup</button>
+        <button id="import">Import JSON backup</button>
+        <input type="file" id="backupFile" accept=".json,application/json" hidden>
+        <button class="danger" id="reset">Reset all data</button>
+      </div>
+      <hr>
+      <h3>Safety rules</h3>
+      <ul class="muted small">
+        <li>No spending, payments, publishing or external messages.</li>
+        <li>Use lawful research and respectful, non-spam outreach.</li>
+        <li>Never store passwords, payment details or API keys.</li>
+        <li>Start with free tests before spending money.</li>
+        <li>Check demand with real people before building a product.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer><strong>ALIEN-0 · Single-file prototype</strong><br>Designed for mobile browsers and static hosting. The interface is self-contained and does not require external libraries, APIs or subscriptions.</footer>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+"use strict";
+
+const STORAGE_KEY = "alien0_complete_v1";
+
+const STRATEGIES = [
+  {name:"Observe unmet needs", description:"Find recurring frustrations and underserved tasks.", prior:0.50},
+  {name:"Simplify a workflow", description:"Reduce time, effort or mistakes.", prior:0.48},
+  {name:"Combine capabilities", description:"Combine simple functions into a useful outcome.", prior:0.46},
+  {name:"Package useful knowledge", description:"Turn repeatable answers into a guide or utility.", prior:0.43},
+  {name:"Automate a repetitive task", description:"Explore a task that people may want to simplify.", prior:0.45},
+  {name:"Test an unusual hypothesis", description:"Try a low-cost idea with a clear way to disprove it.", prior:0.35}
+];
+
+const AGENT_TYPES = [
+  {id:"NOVA",symbol:"◇",trait:"curious",bias:0.30,description:"Explores unfamiliar options."},
+  {id:"KEL",symbol:"⊙",trait:"cautious",bias:0.12,description:"Favors accumulated evidence."},
+  {id:"IX",symbol:"⌁",trait:"novelty-seeking",bias:0.38,description:"Tries less-tested strategies."},
+  {id:"ORU",symbol:"△",trait:"adaptive",bias:0.22,description:"Responds more strongly to outcomes."}
+];
+
+const EXAMPLES = [
+  "Choose one public community, identify a recurring frustration, and check whether existing solutions cost money.",
+  "Find a multi-step task and test whether a checklist or calculator could make it faster.",
+  "Explore whether two simple functions could solve one narrow user problem better together.",
+  "Investigate a repeated question and whether a useful guide or reference tool would help.",
+  "Map a repetitive, low-risk task and prototype a way to reduce manual steps.",
+  "Try a low-cost idea in a niche you understand, with a result that could clearly disprove the idea."
+];
+
+const $ = id => document.getElementById(id);
+const money = value => new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(Number(value)||0);
+const id = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+const average = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+const escapeHTML = value => String(value == null ? "" : value).replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+})[c]);
+
+function freshState() {
+  return {
+    version:1, cycles:0, lessons:[], logs:[], evidence:[], ideas:[], proposals:[],
+    q:STRATEGIES.map(s=>s.prior), n:STRATEGIES.map(()=>0), focus:0,
+    reason:"Initial exploration: collect information before committing to a direction.",
+    agents:AGENT_TYPES.map(a=>({
+      id:a.id,symbol:a.symbol,trait:a.trait,bias:a.bias,description:a.description,
+      q:STRATEGIES.map(s=>s.prior),n:STRATEGIES.map(()=>0),reward:0,tries:0
+    }))
+  };
+}
+
+function validState(s) {
+  return !!s && s.version===1 && Array.isArray(s.q) && s.q.length===STRATEGIES.length &&
+    s.q.every(v=>Number.isFinite(v)&&v>=0&&v<=1) &&
+    Array.isArray(s.n) && s.n.length===STRATEGIES.length &&
+    Array.isArray(s.agents) && s.agents.length===AGENT_TYPES.length &&
+    Array.isArray(s.lessons) && Array.isArray(s.logs) &&
+    Array.isArray(s.evidence) && Array.isArray(s.ideas) && Array.isArray(s.proposals);
+}
+
+function loadState() {
+  try {
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if (!raw) return freshState();
+    const parsed=JSON.parse(raw);
+    if (validState(parsed)) return parsed;
+  } catch (err) {
+    console.warn("ALIEN-0 could not load saved data:",err);
+  }
+  return freshState();
+}
+
+let state=loadState();
+let timer=null;
+let toastTimer=null;
+let storageAvailable=true;
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    storageAvailable=true;
+  } catch (err) {
+    storageAvailable=false;
+    $("status").textContent="STORAGE UNAVAILABLE — EXPORT BACKUPS";
+  }
+}
+
+function toast(message) {
+  const el=$("toast");
+  el.textContent=message;
+  el.style.display="block";
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.style.display="none";},2600);
+}
+
+function addLog(title,body) {
+  state.logs.unshift({id:id(),at:new Date().toISOString(),title,body});
+  state.logs=state.logs.slice(0,100);
+}
+
+function chooseStrategy(agent) {
+  if (Math.random()<clamp(agent.bias-agent.tries*0.001,0.06,0.45)) {
+    return Math.floor(Math.random()*STRATEGIES.length);
+  }
+  const top=Math.max.apply(null,agent.q);
+  const choices=agent.q.map((q,i)=>Math.abs(q-top)<0.000001?i:-1).filter(i=>i>=0);
+  return choices[Math.floor(Math.random()*choices.length)];
+}
+
+function runCycle() {
+  state.cycles++;
+  const agent=state.agents[Math.floor(Math.random()*state.agents.length)];
+  const index=chooseStrategy(agent);
+  const expected=[0.58,0.63,0.51,0.57,0.61,0.38][index];
+  const variation=(Math.random()-0.5)*0.62;
+  const novelty=agent.trait==="novelty-seeking" && index===5 ? 0.12 : 0;
+  const outcome=clamp(expected+variation+novelty,0,1);
+  const old=agent.q[index];
+  const rate=agent.trait==="adaptive"?0.34:0.22;
+
+  agent.q[index]=clamp(old+rate*(outcome-old),0,1);
+  agent.n[index]++;
+  agent.tries++;
+  agent.reward+=outcome;
+
+  state.q[index]=clamp(state.q[index]+(outcome-state.q[index])/(state.n[index]+2.5),0,1);
+  state.n[index]++;
+
+  const lesson={
+    id:id(),cycle:state.cycles,agent:agent.id,strategy:index,
+    outcome:outcome,at:new Date().toISOString()
+  };
+  state.lessons.unshift(lesson);
+  state.lessons=state.lessons.slice(0,500);
+
+  const description=outcome>=0.66?"Promising":outcome>=0.42?"Mixed":"Weak";
+  addLog(agent.id+" tested: "+STRATEGIES[index].name,
+    description+" simulated outcome ("+Math.round(outcome*100)+"/100). Estimate changed from "+
+    Math.round(old*100)+"% to "+Math.round(agent.q[index]*100)+
+    "%. This is simulation feedback, not real customer evidence.");
+
+  state.focus=state.q.indexOf(Math.max.apply(null,state.q));
+  state.reason="Top simulated estimate: "+STRATEGIES[state.focus].name+
+    " ("+Math.round(state.q[state.focus]*100)+
+    "%). Validate demand with real people before building.";
+  saveState();
+  render();
+}
+
+function makeIdea(showToast) {
+  const ranked=STRATEGIES.map((s,i)=>({
+    index:i,score:state.q[i]+(state.n[i]===0?0.09:0)
+  })).sort((a,b)=>b.score-a.score);
+  const pool=ranked.slice(0,Math.min(3,ranked.length));
+  const selected=pool[Math.floor(Math.random()*pool.length)];
+  const strategy=STRATEGIES[selected.index];
+
+  const idea={
+    id:id(),
+    title:strategy.name+" — hypothesis "+(state.ideas.length+1),
+    strategy:selected.index,
+    description:EXAMPLES[selected.index],
+    score:state.q[selected.index],
+    status:"unvalidated",
+    next:"Research existing solutions, look for evidence of demand, and record what you discover.",
+    at:new Date().toISOString()
+  };
+
+  state.ideas.unshift(idea);
+  state.ideas=state.ideas.slice(0,30);
+  addLog("New hypothesis generated",idea.title+": "+idea.description+
+    " No market demand has been established.");
+  saveState();
+  render();
+  if (showToast) toast("Hypothesis created. Validate it in the real world.");
+  return idea;
+}
+
+function makeProposal(ideaId) {
+  const idea=state.ideas.find(x=>x.id===ideaId) ||
+    state.ideas.find(x=>x.status==="unvalidated");
+
+  const proposal={
+    id:id(),
+    title:idea?"Investigate: "+idea.title:"Research the leading strategy",
+    body:idea?idea.description:
+      "Identify one real customer problem, inspect existing alternatives, and collect evidence before investing time or money.",
+    status:"awaiting review",
+    at:new Date().toISOString()
+  };
+
+  state.proposals.unshift(proposal);
+  state.proposals=state.proposals.slice(0,50);
+  addLog("Proposal drafted",proposal.title+". Awaiting human review; nothing has been executed.");
+  saveState();
+  render();
+  toast("Proposal saved for your review.");
+}
+
+function render() {
+  $("cycles").textContent=state.cycles;
+  $("lessons").textContent=state.lessons.length;
+  $("trials").textContent=state.n.reduce((a,b)=>a+b,0);
+
+  const sales=state.evidence.filter(e=>e.kind==="sale").reduce((a,e)=>a+e.amount,0);
+  const costs=state.evidence.filter(e=>e.kind==="cost").reduce((a,e)=>a+e.amount,0);
+  $("sales").textContent=money(sales);
+
+  const coverage=Math.round(average(state.n.map(n=>Math.min(1,n/12)))*100);
+  $("coverage").textContent=coverage+"%";
+  $("coverageBar").style.width=coverage+"%";
+
+  $("agents").innerHTML=state.agents.map(a=>{
+    const best=a.q.indexOf(Math.max.apply(null,a.q));
+    return '<div class="item"><div class="row"><h3><span style="color:var(--mint)">'+
+      escapeHTML(a.symbol)+'</span> '+escapeHTML(a.id)+'</h3><span class="pill">'+
+      escapeHTML(a.trait)+'</span></div><p>'+escapeHTML(a.description)+'</p>'+
+      '<div class="row small muted"><span>Trials: '+a.tries+'</span><span>Mean simulated score: '+
+      (a.tries?Math.round(a.reward/a.tries*100)+"%":"—")+'</span></div>'+
+      '<div class="progress"><span style="width:'+(a.q[best]*100)+'%"></span></div>'+
+      '<p>Current preference: '+escapeHTML(STRATEGIES[best].name)+'</p></div>';
+  }).join("");
+
+  $("strategies").innerHTML=STRATEGIES.map((s,i)=>
+    '<div class="item"><div class="row"><h3>'+escapeHTML(s.name)+'</h3><span class="pill">'+
+    Math.round(state.q[i]*100)+'% internal</span></div><div class="progress"><span style="width:'+
+    (state.q[i]*100)+'%"></span></div><p>'+escapeHTML(s.description)+'</p><p>'+
+    state.n[i]+' simulated trials</p></div>'
+  ).join("");
+
+  $("bestStrategy").textContent=state.cycles?STRATEGIES[state.focus].name:"Waiting for first cycle";
+  $("strategyReason").textContent=state.reason;
+
+  $("memory").innerHTML=state.logs.length?state.logs.slice(0,7).map(l=>
+    '<div class="item"><div class="row"><h3>'+escapeHTML(l.title)+'</h3><span class="pill">'+
+    escapeHTML(new Date(l.at).toLocaleDateString())+'</span></div><p>'+
+    escapeHTML(l.body)+'</p></div>'
+  ).join(""):'<div class="empty">No memories yet. Run a cycle.</div>';
+
+  $("ideas").innerHTML=state.ideas.length?state.ideas.slice(0,5).map(x=>
+    '<div class="item"><div class="row"><h3>'+escapeHTML(x.title)+'</h3><span class="pill">'+
+    escapeHTML(x.status)+'</span></div><p>'+escapeHTML(x.description)+'</p><p>Internal simulated score: '+
+    Math.round(x.score*100)+'% — not a demand forecast.</p><div class="actions">'+
+    '<button data-research="'+escapeHTML(x.id)+'">Mark researched</button>'+
+    '<button data-propose="'+escapeHTML(x.id)+'">Draft next step</button></div></div>'
+  ).join(""):'<div class="empty">No hypotheses yet. Generate one or run a cycle.</div>';
+
+  $("proposals").innerHTML=state.proposals.length?state.proposals.slice(0,7).map(p=>
+    '<div class="item"><div class="row"><h3>'+escapeHTML(p.title)+'</h3><span class="pill">'+
+    escapeHTML(p.status)+'</span></div><p>'+escapeHTML(p.body)+'</p>'+
+    (p.status!=="reviewed by owner"?'<button data-review="'+escapeHTML(p.id)+'">Mark reviewed</button>':"")+
+    '</div>'
+  ).join(""):'<div class="empty">No proposals yet.</div>';
+
+  $("grossSales").textContent=money(sales);
+  $("totalCosts").textContent=money(costs);
+  $("netResult").textContent=money(sales-costs);
+  $("evidenceTotal").textContent=state.evidence.length;
+
+  $("evidenceList").innerHTML=state.evidence.slice(0,5).map(e=>
+    '<div class="item"><div class="row"><h3>'+escapeHTML(e.kind.toUpperCase())+
+    '</h3><span class="pill">'+escapeHTML(new Date(e.at).toLocaleDateString())+
+    '</span></div><p>'+escapeHTML(e.note)+'</p><p>Amount entered: '+money(e.amount)+
+    ' · User-entered, not independently verified.</p></div>'
+  ).join("");
+
+  if(storageAvailable) $("status").textContent=timer?"AUTO MODE RUNNING":"SYSTEM READY";
+}
+
+function stopAuto() {
+  if(timer!==null) clearInterval(timer);
+  timer=null;
+  $("autoStart").disabled=false;
+  $("autoStop").disabled=true;
+  $("status").textContent="SYSTEM READY";
+}
+
+function downloadBackup() {
+  try {
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download="alien-0-backup.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast("Backup prepared. Check your browser downloads.");
+  } catch(err) {
+    toast("Could not create backup in this browser.");
+  }
+}
+
+$("runOne").addEventListener("click",runCycle);
+$("runTen").addEventListener("click",()=>{
+  for(let i=0;i<10;i++) runCycle();
+  toast("10 cycles complete. All outcomes were simulated.");
+});
+$("autoStart").addEventListener("click",()=>{
+  if(timer!==null) return;
+  timer=setInterval(runCycle,1800);
+  $("autoStart").disabled=true;
+  $("autoStop").disabled=false;
+  $("status").textContent="AUTO MODE RUNNING";
+});
+$("autoStop").addEventListener("click",stopAuto);
+$("newIdea").addEventListener("click",()=>makeIdea(true));
+$("makeProposal").addEventListener("click",()=>makeProposal());
+
+document.addEventListener("click",event=>{
+  const el=event.target;
+  if(!(el instanceof HTMLElement)) return;
+
+  if(el.dataset.research) {
+    const idea=state.ideas.find(x=>x.id===el.dataset.research);
+    if(idea) {
+      idea.status="research status updated by owner";
+      addLog("Research status updated",idea.title+
+        " marked as researched by the user. This is not independent verification.");
+      saveState();
+      render();
+      toast("Status updated. Record findings as evidence.");
+    }
+  }
+
+  if(el.dataset.propose) makeProposal(el.dataset.propose);
+
+  if(el.dataset.review) {
+    const proposal=state.proposals.find(x=>x.id===el.dataset.review);
+    if(proposal) {
+      proposal.status="reviewed by owner";
+      addLog("Proposal reviewed",proposal.title+
+        " marked reviewed. No action was executed.");
+      saveState();
+      render();
+      toast("Marked reviewed. Nothing was executed.");
+    }
+  }
+});
+
+$("evidenceForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  const kind=$("evidenceType").value;
+  const note=$("evidenceNote").value.trim();
+  const amount=Number($("amount").value);
+
+  if(!note) {
+    toast("Describe the evidence before saving.");
+    return;
+  }
+  if(!Number.isFinite(amount)||amount<0) {
+    toast("Enter a valid non-negative amount.");
+    return;
+  }
+
+  const record={
+    id:id(),kind:kind,note:note,amount:amount,at:new Date().toISOString()
+  };
+  state.evidence.unshift(record);
+  state.evidence=state.evidence.slice(0,500);
+  addLog("Real-world evidence recorded: "+kind,
+    note+" Amount entered: "+money(amount)+
+    ". This is user-entered evidence and has not been independently verified.");
+
+  saveState();
+  $("evidenceNote").value="";
+  $("amount").value="0";
+  render();
+  toast("Evidence saved in this browser.");
+});
+
+$("backup").addEventListener("click",downloadBackup);
+$("exportTop").addEventListener("click",downloadBackup);
+
+$("import").addEventListener("click",()=>$("backupFile").click());
+$("backupFile").addEventListener("change",async event=>{
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+
+  try {
+    const imported=JSON.parse(await file.text());
+    if(!validState(imported)) throw new Error("Invalid backup structure");
+    if(confirm("Replace current ALIEN-0 data with this backup? Export your current data first if needed.")) {
+      stopAuto();
+      state=imported;
+      saveState();
+      render();
+      toast("Backup imported.");
+    }
+  } catch(err) {
+    toast("Backup invalid or unreadable. Current data was not changed.");
+  }
+  event.target.value="";
+});
+
+$("reset").addEventListener("click",()=>{
+  if(!confirm("Delete ALIEN-0 data saved in this browser? Export a backup first if you need it.")) return;
+  stopAuto();
+  state=freshState();
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    storageAvailable=true;
+  } catch(err) {
+    storageAvailable=false;
+  }
+  saveState();
+  render();
+  toast("Local ALIEN-0 data reset.");
+});
+
+render();
+})();
+</script>
+</body>
+</html>
